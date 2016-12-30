@@ -1,0 +1,18 @@
+First import image and convert it to gray scale. Verify correct grayscale done
+
+Set threshold to middle of grayscale, then binary to black and white image
+ERROR - kfmIkJC is past grayscale line. Solves by increasing grayscale past 127, 
+but inconsistent solution. Swoosh adaptive threashold
+
+Is this really necessary? lowering threashold to 200 works fine
+	Eh, good exercise
+	Mean looks better than gaussian, but jpgs quality is definity causing artificats
+	NB: Adaptive threshold is when the image isn't at a constant lighting. Not an issue here, if image is pulled from VM. If image pulled from camera it will be though. Set adaptive mean, and explain
+
+	CONVERSLY, try otsu's thresholding - with gaussian filtering. Look into for actual image. Would do several samples of available colors to find the max threashold point
+	Gaussian filter removed JPEG issue. Therefore, filtering of image should be
+		Black and white
+		Gaussian
+		Otsus OR adaptive
+			Thinking adaptive will be better but idk now
+
