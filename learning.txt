@@ -16,3 +16,24 @@ Is this really necessary? lowering threashold to 200 works fine
 		Otsus OR adaptive
 			Thinking adaptive will be better but idk now
 
+Making templates
+0:
+	1: top
+	2: right
+	3: down
+	4: left
+1:
+	1: top - right
+	2: right - down
+	3: down - left
+	4: left - top
+2: 
+	1: top-down
+	2: left-right
+3:
+	1: top - right - down
+	2: right - down - left
+	3: down - left - top
+	4: left - top - down
+4:
+	1:  Duh
