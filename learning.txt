@@ -37,3 +37,7 @@ Making templates
 	4: left - top - down
 4:
 	1:  Duh
+
+Template finding
+    Need to update for scale invariant
+    Current method is from tutorial but doesn't provide correct identifiers

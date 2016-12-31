@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 import cv2
 
 image1_color = cv2.imread("/home/joseph/Pictures/maxresdefault.jpg") 
