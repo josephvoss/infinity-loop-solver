@@ -41,3 +41,6 @@ Making templates
 Template finding
     Need to update for scale invariant
     Current method is from tutorial but doesn't provide correct identifiers
+    No, rework to dead simple trick - brute forcing over range of scales
+   
+    Rework in prog 
