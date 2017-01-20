@@ -16,7 +16,7 @@ Tasks completed
 """
 
 img_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
-#img_path = "/home/joseph/Pictures/kfmIkJC.png"
+img_path = "/home/joseph/Pictures/kfmIkJC.png"
 
 img_color = cv2.imread(img_path)
 img_gray = cv2.cvtColor(img_color, cv2.COLOR_BGR2GRAY)
@@ -42,17 +42,42 @@ ydiv = int(round(yLength/scaledSize))
 xdiv = int(round(xLength/scaledSize))
 scaledSize = int(round(yLength/ydiv))
 
+#xdiv_list = []
+#ydiv_list = []
 for i in range(1,xdiv):
     cv2.line(img_color,(minLoc[0],minLoc[1]+i*scaledSize),(maxLoc[0],minLoc[1]+i*scaledSize),(0,0,255),1)
+ #   xdiv_list.append(i*scaledSize)
 for i in range(1,ydiv):
     cv2.line(img_color,(minLoc[0]+i*scaledSize,minLoc[1]),(minLoc[0]+i*scaledSize,maxLoc[1]),(0,0,255),1)
+ #   ydiv_list.append(i*scaledSize)
 
+
+print xdiv
+print ydiv
 window_name="test"
 cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
 cv2.resizeWindow(window_name,400,600)
 cv2.imshow(window_name, img_color)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+
+images = []
+k=0
+last_point = minLoc
+for i in range(0,xdiv):
+    for j in range(0,ydiv):
+        last_point = (minLoc[0]+scaledSize*j,minLoc[1]+scaledSize*i)
+        images.append(img_canny[last_point[1]:last_point[1]+scaledSize,
+            last_point[0]:last_point[0]+scaledSize])
+        print last_point
+        print images[k].shape
+        cv2.imshow(str(k),images[k])
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        k+=1
+
+
 
 
 """
