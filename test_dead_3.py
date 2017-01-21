@@ -69,11 +69,11 @@ def find_scale(imagePath,templatePaths):
                 # draw a bounding box around the detected result and display the image
                 cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 1)
                 window_name="test"
-                cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
-                cv2.resizeWindow(window_name,400,600)
-                cv2.imshow(window_name, image)
-                cv2.waitKey(0)
-                cv2.destroyAllWindows()
+#                cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
+#                cv2.resizeWindow(window_name,400,600)
+#                cv2.imshow(window_name, image)
+#                cv2.waitKey(0)
+#                cv2.destroyAllWindows()
                 if found is not None:
                     return tW*r
 

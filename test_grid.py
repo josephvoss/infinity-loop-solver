@@ -16,14 +16,16 @@ Tasks completed
 """
 
 img_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
-img_path = "/home/joseph/Pictures/kfmIkJC.png"
+#img_path = "/home/joseph/Pictures/kfmIkJC.png"
 
 img_color = cv2.imread(img_path)
 img_gray = cv2.cvtColor(img_color, cv2.COLOR_BGR2GRAY)
 img_canny = cv2.Canny(img_gray,50,200)
 
-#thresh  = cv2.adaptiveThreshold(img_canny,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+#thresh  = cv2.adaptiveThreshold(img_gray,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
 #        cv2.THRESH_BINARY, 11,2)
+
+ret, thresh = cv2.threshold(img_gray,200,255,cv2.THRESH_BINARY_INV)
 
 x=np.where(img_canny==255) #find in image where solid line
 minLoc = (min(x[1]),min(x[0]))
@@ -52,8 +54,40 @@ for i in range(1,ydiv):
  #   ydiv_list.append(i*scaledSize)
 
 
-print xdiv
-print ydiv
+last_point = minLoc
+contour_areas = []
+images = []
+for i in range(0,xdiv):
+    for j in range(0,ydiv):
+        last_point = (minLoc[0]+scaledSize*j,minLoc[1]+scaledSize*i)
+        images.append(thresh[last_point[1]:last_point[1]+scaledSize,
+            last_point[0]:last_point[0]+scaledSize])
+        k = images[-1]
+        total = 0
+        total = cv2.sumElems(k)
+        val = total[0]/scaledSize**2
+        if abs(val - 55) < 5:
+            img_type = 1
+        elif abs(val - 25) < 3:
+            img_type = 2
+        elif abs(val - 33) < 3:
+            img_type = 3
+        elif abs(val - 43) < 3:
+            img_type = 4
+        elif abs(val - 70) < 3:
+            img_type = 5
+        elif abs(val) < 1:
+            img_type = 0
+        else:
+            img_type = -1
+        text_size = cv2.getTextSize(str(img_type),cv2.FONT_HERSHEY_SIMPLEX,2,3)
+        x = last_point[0] + scaledSize/2 - text_size[0][0]/2
+        y = last_point[1] + scaledSize/2 + text_size[0][1]/2
+        cv2.putText(img_color,str(img_type),(x,y), cv2.FONT_HERSHEY_SIMPLEX,2,
+                (0,0,255), 3, bottomLeftOrigin = False)
+        print str(total[0]/scaledSize**2) + ":\t" + str(img_type)
+        contour_areas.append(total[0]/scaledSize**2)
+
 window_name="test"
 cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
 cv2.resizeWindow(window_name,400,600)
@@ -62,23 +96,33 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 
-images = []
-k=0
-last_point = minLoc
-for i in range(0,xdiv):
-    for j in range(0,ydiv):
-        last_point = (minLoc[0]+scaledSize*j,minLoc[1]+scaledSize*i)
-        images.append(img_canny[last_point[1]:last_point[1]+scaledSize,
-            last_point[0]:last_point[0]+scaledSize])
-        print last_point
-        print images[k].shape
-        cv2.imshow(str(k),images[k])
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-        k+=1
+#types = np.zeros(xdiv,ydiv)
+#contour_areas = []
+#for i in images:
+#    total = 0
+#    total = cv2.sumElems(i)
+#    val = total[0]/scaledSize**2
+#    if abs(val - 55) < 5:
+#        img_type = 1
+#    elif abs(val - 25) < 3:
+#        img_type = 2
+#    elif abs(val - 33) < 3:
+#        img_type = 3
+#    elif abs(val - 43) < 3:
+#        img_type = 4
+#    elif abs(val - 70) < 3:
+#        img_type = 5
+#    elif abs(val) < 1:
+#        img_type = 0
+#    else:
+#        img_type = -1
+#    print str(total[0]/scaledSize**2) + ":\t" + str(img_type)
+#    contour_areas.append(total[0]/scaledSize**2)
 
 
-
+#import matplotlib.pyplot as plt
+#plt.hist(contour_areas, 50)
+#plt.show()
 
 """
 
