@@ -94,7 +94,7 @@ def image_find(img_path, template_path, data_object):
             y = last_point[1] + scaledSize/2 + text_size[0][1]/2
             cv2.putText(img_color,str(img_type),(x,y), cv2.FONT_HERSHEY_SIMPLEX,2,
                     (0,0,255), 3, bottomLeftOrigin = False)
-            data_object.shape_matrix[i][j] = img_type
+            data_object.shape_matrix[i][j] = int(img_type)
 
     window_name="Image Finder"
     cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)

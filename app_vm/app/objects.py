@@ -29,23 +29,23 @@ class Data_storage:
                         3: m, n*2+2
                         4: m, n*2+1
 
-                    Spaces are holes, 0's are lines, x's are edges, ? is undef
-                     x x x x ?
-                    x 0 0 0 x
-                     0 0 0 0 ?
-                    x 0 0 0 x
-                     0 0 0 0 ?
-                    x 0 0 0 x
-                     x x x x ?
+                Spaces are holes, 0's are lines, x's are edges, ? is undef
+                 x x x x ?
+                x 0 0 0 x
+                 0 0 0 0 ?
+                x 0 0 0 x
+                 0 0 0 0 ?
+                x 0 0 0 x
+                 x x x x ?
 
                     
 
-                    Fixed points
-                        mxn matrix
-                            0 for unknown
-                            1 for fixed
-                            2+ for number of possibilities
-                            -1 for empty (necessary? can get empty from other)
+            Fixed points
+                mxn matrix
+                    0 for unknown
+                    1 for fixed
+                    2+ for number of possibilities
+                    -1 for empty (necessary? can get empty from other)
     """
 
     def set_size(self,m,n):
@@ -54,7 +54,7 @@ class Data_storage:
         Input: Integer n (y) length of grid
 
         """
-        self.shape_matrix = np.zeros((m,n))
+        self.shape_matrix = np.zeros((m,n),dtype=np.int)
         self.required_points = np.zeros((m*2+1,n+1))
         self.fixed_points = np.zeros((m,n))
 
