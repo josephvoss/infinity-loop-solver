@@ -1,3 +1,4 @@
+from __future__ import print_function
 import cv2
 import numpy as np
 import glob
@@ -26,6 +27,10 @@ def image_find(img_path, template_path, data_object):
     #img_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
     #img_path = "/home/joseph/Pictures/kfmIkJC.png"
     #template_path = "/home/joseph/scratch/CV/app_vm/data/templates/"
+    print("Beginning image identification process")
+    for i in range(80):
+        print("-",end='')
+    print('')
 
     img_color = cv2.imread(img_path)
     img_gray = cv2.cvtColor(img_color, cv2.COLOR_BGR2GRAY)

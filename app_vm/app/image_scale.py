@@ -42,11 +42,11 @@ def find_scale(imagePath,templatePaths):
             found = None
             rot_type = templatePath.split('_')[-1].split('.')[0]
 
-            print("Beginning search for images of shape "+str(image_type) + 
+            print("\tSearching for images of shape "+str(image_type) + 
                     " rotation " + str(rot_type))
             # loop over the scales of the image
             for scale in np.linspace(0.5, 2, 50)[::-1]:
-                print("Completed:\t"+str(round(1-scale/2,3)*100)+"%", end="\r")
+                print("\tCompleted:\t"+str(round(1-(scale-.5)/(2-.5),3)*100)+"%", end="\r")
                 sys.stdout.flush()
                 # resize the image according to the scale, and keep track
                 # of the ratio of the resizing
@@ -71,12 +71,13 @@ def find_scale(imagePath,templatePaths):
                     if maxVal < 0.5:
                         pass
                     else:
-                        print("Found new max! Size of " +
+                        print("\tFound new max. Template size of " +
                                 str(int(round(r*tW)))+ " with accuracy of " +
                                 str(round(maxVal,3)))
                         found = (maxVal, maxLoc, r)
 
             if found is not None:
+                print("\tCompleted:\t"+str(100.000)+"%")
                 # unpack the bookkeeping variable to retrieve the scale r
                 (_, maxLoc, r) = found
                 
