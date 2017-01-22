@@ -172,11 +172,12 @@ class Data_storage:
             #       some bordering conditions), set other lines as positive
             #       required
             # This could be replaced with a carefully designed switch
+            neighbors = self.search_neighbors(x,y)
+            pos_fixed = np.where(neighbors == 1)[0]
+            zero_fixed = np.where(neighbors == 0)[0]
+            neg_fixed = np.where(neighbors == -1)[0]
             if self.shape_matrix[x,y] == 1:
-                neighbors = self.search_neighbors(x,y)
-
                 # For pos fixed
-                pos_fixed = np.where(neighbors == 1)[0]
                 # Iff there are 3 required lines bordering the cell
                 # set the other line as non_req
                 if len(pos_fixed) == 1:
@@ -186,7 +187,6 @@ class Data_storage:
                             neg_neighbors[1], neg_neighbors[2],
                             neg_neighbors[3], -1)
                 # For neg fixed
-                neg_fixed = np.where(neighbors == -1)[0]
                 # Iff there are 3 non_required lines bordering the cell
                 # set the other line as req 
                 if len(neg_fixed) == 3:
@@ -197,23 +197,36 @@ class Data_storage:
                             pos_neighbors[3], 1)
 
             elif self.shape_matrix[x,y] == 2:
-                neighbors = self.search_neighbors(x,y)
                 # For pos fixed
-                pos_fixed = np.where(neighbors == 1)
                 # Iff there are 2 required lines bordering the cell and they're
                 # next to each other, set the other grids as non_req
-                if len(pos_fixed) == 2 and abs(pos_fixed[0]-pos_fixed[1]) == 1:
+                if len(pos_fixed) == 2 and (abs(pos_fixed[0] - pos_fixed[1])\
+                        == 1 or abs(pos_fixed[0]-pos_fixed[1]) == 3):
                     neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
                     # set all other grids set as neg_required
                     self.set_required_points((x,y), neg_neighbors[0],
                             neg_neighbors[1], neg_neighbors[2],
                             neg_neighbors[3], -1)
+#                if len(pos_fixed) == 1 and len(neg_fixed)+len(zero_fixed) == 3:
+#                    # If 1 grid fixed, other has to be bordering it
+#                    up_pos_fixed = pos_fixed+1
+#                    down_pos_fixed = pos_fixed-1
+#                    if up_pos_fixed > len(neighbors-1):
+#                        up_pos_fixed = up_pos_fixed - 4
+#                    if down_pos_fixed > len(neighbors-1):
+#                        down_pos_fixed = down_pos_fixed - 4
+#                    if negibors[pos_fixed_up] == 0:
+#                    neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
+#                    self.set_required_points((x,y), neg_neighbors[0],
+#                            neg_neighbors[1], neg_neighbors[2],
+#                            neg_neighbors[3], -1)
+#
 
                 # For neg fixed
-                neg_fixed = np.where(neighbors == -1)[0]
                 # Iff there are 2 non_required lines bordering the cell and
                 # they're next to each other, set the other grids as req
-                if len(neg_fixed) == 2 and abs(neg_fixed[0]-neg_fixed[1]) == 1:
+                if len(neg_fixed) == 2 and (abs(neg_fixed[0] - neg_fixed[1])
+                        == 1 or abs(neg_fixed[0]-neg_fixed[1]) == 3):
                     pos_neighbors = neighbors + 1 # if point is fixed,
                     # set all other grids set as pos_required
                     self.set_required_points((x,y), pos_neighbors[0],
@@ -221,9 +234,7 @@ class Data_storage:
                             pos_neighbors[3], 1)
 
             elif self.shape_matrix[x,y] == 3:
-                neighbors = self.search_neighbors(x,y)
                 # For pos fixed
-                pos_fixed = np.where(neighbors == 1)[0]
                 # Iff there are >= 1 required lines bordering the cell set,
                 # the other grids as non_req
                 if len(pos_fixed) >= 1:
@@ -240,7 +251,6 @@ class Data_storage:
                             neg_neighbors[3], -1)
 
                 # For neg fixed
-                neg_fixed = np.where(neighbors == -1)[0]
                 # Iff there are >= 1 non_required lines bordering the cell,
                 # set the other grids as req
                 if len(neg_fixed) >= 1:
@@ -258,9 +268,7 @@ class Data_storage:
                             pos_neighbors[3], 1)
 
             elif self.shape_matrix[x,y] == 4:
-                neighbors = self.search_neighbors(x,y)
                 # For pos fixed
-                pos_fixed = np.where(neighbors == 1)
                 # Iff there is 1 required line bordering the cell, set the 
                 # other grids as non_req
                 if len(pos_fixed) == 3:
@@ -271,7 +279,6 @@ class Data_storage:
                             neg_neighbors[3], -1)
 
                 # For neg fixed
-                neg_fixed = np.where(neighbors == -1)[0]
                 # Iff there is 1 non_required line bordering the cell, set the 
                 # other grids as req
                 if len(neg_fixed) == 1:

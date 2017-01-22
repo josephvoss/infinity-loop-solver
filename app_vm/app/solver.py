@@ -78,6 +78,7 @@ def solve(data_object):
             shape_type = data_object.shape_matrix[m,n]
             neighbors = data_object.search_neighbors(m,n)
             pos_required = np.where(neighbors == 1)[0]
+            zero_required = np.where(neighbors == 0)[0]
             neg_required = np.where(neighbors == -1)[0]
 
             if shape_type == 1:
@@ -93,6 +94,9 @@ def solve(data_object):
                 if len(pos_required) == 2 and (abs(pos_required[0] -
                         pos_required[1]) == 1 or abs(pos_required[0] -
                             pos_required[1]) == 3):
+                    data_object.set_fixed_points(m, n, 1)
+                # For both
+                if len(pos_required) == 1 and len(zero_required)+len(neg_required) == 3:
                     data_object.set_fixed_points(m, n, 1)
                 # For neg required
                 if len(neg_required) == 2 and (abs(neg_required[0] -
