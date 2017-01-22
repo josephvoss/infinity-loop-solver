@@ -45,28 +45,14 @@ def solve(data_object):
         data_object.set_fixed_points(locations_corners[0][i], 
                 locations_corners[1][i], 1)
 
-    # TESTING PURPOSES    
-"""
-    data_objects.shape_matrix
-    # find shapes at corners
-    if data_object.shape_matrix[0,0] == 2:
-        data_object.fixed_points[0,0] = 1
-        set_required_points(i,0,1,1,0,data_object) 
-    if data_object.shape_matrix[0,-1] == 2:
-        data_object.fixed_points[0,-1] = 1
-        set_required_points(i,0,0,1,1,data_object) 
-    if data_object.shape_matrix[-1,-1] == 2:
-        data_object.fixed_points[-1,-1] = 1
-        set_required_points(i,1,0,0,1,data_object) 
-    if data_object.shape_matrix[-1,0] == 2:
-        data_object.fixed_points[-1,0] = 1
-        set_required_points(i,1,1,0,0,data_object) 
-                                                   
+    # edges - shapes 3 and 4 only
+    locations_edges = []
+    shape = data_object.shape_matrix.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if i == 0 or i == shape[0]-1 or j == 0 or j == shape[1]-1:
+                if data_object.shape_matrix[i,j] == 3 or \
+                data_object.shape_matrix[i,j] == 4:
+                    data_object.set_fixed_points(i,j, 1)
 
-    # edges means depending on shape and surroundings, points required
-
-
-    for i in range(data_object.required_points.shape[0]):
-        for j in range(data_object.required_points.shape[1]):
-            pass
-"""
+    # 3. From required points generate fixed points
