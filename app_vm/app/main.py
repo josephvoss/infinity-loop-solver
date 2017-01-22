@@ -18,5 +18,9 @@ print('')
 storage = objects.Data_storage()
 image.image_find(image_path, template_path, storage)
 solver.solve(storage)
-print(storage.required_points)
+for i,item in enumerate(storage.required_points):
+    if i % 2 == 0:
+        print(" ",item)
+    elif i%2 == 1:
+        print(item)
 print(storage.fixed_points)

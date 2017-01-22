@@ -1,4 +1,7 @@
 import numpy as np
+import time
+import sys
+
 import objects
 
 def solve(data_object):
@@ -55,4 +58,70 @@ def solve(data_object):
                 data_object.shape_matrix[i,j] == 4:
                     data_object.set_fixed_points(i,j, 1)
 
-    # 3. From required points generate fixed points
+    # 3. from required points generate fixed points
+    # while fixed_points != 1
+    counter = 0
+    while np.any(data_object.fixed_points-1):
+        sys.stderr.write("\x1b[2J\x1b[H")
+        print "Pass # ",counter
+        for i,item in enumerate(data_object.required_points):
+            if i % 2 == 0:
+                print " ",item
+            elif i % 2 == 1:
+                print item
+        print data_object.fixed_points
+        not_fixed = np.where(data_object.fixed_points != 1)
+        for i in range(len(not_fixed[0])):
+            m = not_fixed[0][i]
+            n = not_fixed[1][i]
+#            print "Working on cell (" + str(m) +  "," + str(n) + ")"
+            shape_type = data_object.shape_matrix[m,n]
+            neighbors = data_object.search_neighbors(m,n)
+            pos_required = np.where(neighbors == 1)[0]
+            neg_required = np.where(neighbors == -1)[0]
+
+            if shape_type == 1:
+                # For pos required
+                if len(pos_required) == 1:
+                    data_object.set_fixed_points(m, n, 1)
+                # For neg required
+                if len(neg_required) == 3:
+                    data_object.set_fixed_points(m, n, 1)
+
+            elif shape_type == 2:
+                # For pos required
+                if len(pos_required) == 2 and (abs(pos_required[0] -
+                        pos_required[1]) == 1 or abs(pos_required[0] -
+                            pos_required[1]) == 3):
+                    data_object.set_fixed_points(m, n, 1)
+                # For neg required
+                if len(neg_required) == 2 and (abs(neg_required[0] -
+                        neg_required[1]) == 1 or abs(neg_required[0] -
+                            neg_required[1]) == 3):
+                    data_object.set_fixed_points(m, n, 1)
+
+            elif shape_type == 3:
+                # For pos required
+                if len(pos_required) >= 1:
+                    data_object.set_fixed_points(m, n, 1)
+                # For neg required
+                if len(neg_required) >= 1:
+                    data_object.set_fixed_points(m, n, 1)
+
+            elif shape_type == 4:
+                # For pos required
+                if len(pos_required) == 3:
+                    data_object.set_fixed_points(m, n, 1)
+                # For neg required
+                if len(neg_required) == 1:
+                    data_object.set_fixed_points(m, n, 1)
+
+                pass
+            elif shape_type == 5 or shape_type == 0:
+                print "Error: Shape type ",shape_type," should have been solved previously"
+            else:
+                print "Error: Invalid shape value cannot be solved"
+
+        time.sleep(0.5)
+        counter += 1
+
