@@ -31,13 +31,22 @@ def solve(data_object):
     for i in range(len(locations_0[0])):
         data_object.set_fixed_points(locations_0[0][i], locations_0[1][i], 1)
 
-    # corners
-    corners = storage.shape_matrix[[0,0,-1,-1],[0,-1,0,-1]] # 4x4 matrix
+    # corners - shape 2 only
+    corners = data_object.shape_matrix[tuple(slice(None, None, j-1) for j in
+        data_object.shape_matrix.shape)] # 4x4 matrix
     locations_corners = np.where(corners == 2)
+    shape = data_object.shape_matrix.shape
     for i in range(len(locations_corners[0])):
-        data_object.set_fixed_points(locations_corners[0][i], locations_corners[1][i], 1)
-    
+        if locations_corners[0][i] != 0:
+            locations_corners[0][i] = shape[0] - locations_corners[0][i]
+        if locations_corners[1][i] != 0:
+            locations_corners[1][i] = shape[1] - locations_corners[1][i]
+        # need to convert the corner locations to matrix locations
+        data_object.set_fixed_points(locations_corners[0][i], 
+                locations_corners[1][i], 1)
 
+    
+"""
     data_objects.shape_matrix
     # find shapes at corners
     if data_object.shape_matrix[0,0] == 2:
@@ -60,3 +69,4 @@ def solve(data_object):
     for i in range(data_object.required_points.shape[0]):
         for j in range(data_object.required_points.shape[1]):
             pass
+"""

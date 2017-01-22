@@ -101,6 +101,22 @@ class Data_storage:
         else:
             pass
 
+    def search_neighbors(self,x,y):
+        """
+        Helper function to find neighboors from required matrix
+
+        Input: Integer x coordinate
+        Input: Integer y coordinate
+        Output: 4x4 matrix of neighboring points in the required matrix object
+
+        """
+        output = np.zeros(4)
+        output[0] = self.required_points[x*2,y]
+        output[1] = self.required_points[x*2+1,y+1]
+        output[2] = self.required_points[x*2+2,y]
+        output[3] = self.required_points[x*2+1,y]
+
+        return output
 
     # -1 == edge of grid
     # -9 == artifact of data storage => ignore
@@ -137,27 +153,68 @@ class Data_storage:
         """
 
         self.fixed_points[x,y] = value
+        # Different values set to fixed impact the required points matrix in
+        # different ways
+
+        #
+        # ERROR - below code is set up to FIND fixed points. Are points fixed
+        # then update the required matrix?
+        #
+        # For corners, edges, and shapes 0 and 5 - YES
+        # For interiors - NO
+        # Therefore, need to write an inverse function
+        #   Searches over required matrix and fixes points
+        #
+
+        # If fixed is 1, updated required matrix and *try to solve*
+        # To solve - looking for pos and negative fixed, inferring from there
         if value == 1:
             if self.shape_matrix[x,y] == 1:
                 #self.set_required_points((x,y), 1, 1, 1, 1, 1)
+                neighbors = self.search_neighbors(x,y)
                 pass
             elif self.shape_matrix[x,y] == 2:
-                #self.set_required_points((x,y), 1, 1, 1, 1, 1)
+                neighbors = self.search_neighbors(x,y)
+                # For pos fixed
+                pos_fixed = np.where(neighbors == 1)
+                # Iff there are 2 required lines bordering the cell and they're
+                # next to each other, set this point as fixed 
+                if len(pos_fixed) == 2 and abs(pos_fixed[0]-pos_fixed[1]) == 1:
+                    neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
+                    # set all other grids set as neg_required
+                    self.set_required_points((x,y), neg_neighbors[0],
+                            neg_neighbors[1], neg_neighbors[2],
+                            neg_neighbors[3], -1)
+
+                # For neg fixed
+                neg_fixed = np.where(neighbors == -1)[0]
+                # Iff there are 2 non_required lines bordering the cell and
+                # they're next to each other, set this point as fixed 
+                if len(neg_fixed) == 2 and abs(neg_fixed[0]-neg_fixed[1]) == 1:
+                    pos_neighbors = neighbors + 1 # if point is fixed,
+                    # some all other grids set as pos_required
+                    self.set_required_points((x,y), pos_neighbors[0],
+                            pos_neighbors[1], pos_neighbors[2],
+                            pos_neighbors[3], 1)
                 pass
+
             elif self.shape_matrix[x,y] == 3:
                 #self.set_required_points((x,y), 1, 1, 1, 1, 1)
+                neighbors = self.search_neighbors(x,y)
                 pass
             elif self.shape_matrix[x,y] == 4:
                 #self.set_required_points((x,y), 1, 1, 1, 1, 1)
+                neighbors = self.search_neighbors(x,y)
                 pass
             elif self.shape_matrix[x,y] == 5:
-                print "Shape 5"
                 self.set_required_points((x,y), 1, 1, 1, 1, 1)
+                #neighbors not neeeded, all need to be pos fixed
                 pass
             elif self.shape_matrix[x,y] == 0:
-                print "Shape 0"
                 self.set_required_points((x,y), 1, 1, 1, 1, -1)
+                #neighbors not neeeded, all need to be neg fixed
                 pass
             else:
                 pass
-
+        else:
+            "Error: Value is not defined"
