@@ -45,7 +45,7 @@ def solve(data_object):
         data_object.set_fixed_points(locations_corners[0][i], 
                 locations_corners[1][i], 1)
 
-    
+    # TESTING PURPOSES    
 """
     data_objects.shape_matrix
     # find shapes at corners
