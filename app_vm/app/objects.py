@@ -76,13 +76,13 @@ class Data_storage:
         """
         x = point[0]; y = point[1]
 
-        if a:
+        if a == 1:
             self.required_points[x*2,y] = value
-        if b:
+        if b == 1:
             self.required_points[x*2+1,y+1] = value
-        if c:
+        if c == 1:
             self.required_points[x*2+2,y] = value
-        if d:
+        if d == 1:
             self.required_points[x*2+1,y] = value
 
     def get_required_points(self,m,n):
@@ -155,7 +155,6 @@ class Data_storage:
         """
 
         self.fixed_points[x,y] = value
-
         # Different values set to fixed impact the required points matrix in
         # different ways
         if value == 1:
@@ -173,6 +172,7 @@ class Data_storage:
             #       required
             # This could be replaced with a carefully designed switch
             neighbors = self.search_neighbors(x,y)
+
             pos_fixed = np.where(neighbors == 1)[0]
             zero_fixed = np.where(neighbors == 0)[0]
             neg_fixed = np.where(neighbors == -1)[0]
@@ -244,6 +244,9 @@ class Data_storage:
                         if index > len(neighbors)-1:
                             index = index - 4
                         neighbors[index] = 1
+                        # Update neighbors with new value
+                        self.set_required_points((x,y), neighbors[0], 
+                            neighbors[1], neighbors[2], neighbors[3], 1)
                     neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
                     # set all other grids set as neg_required
                     self.set_required_points((x,y), neg_neighbors[0],
@@ -260,9 +263,14 @@ class Data_storage:
                         if index > len(neighbors)-1:
                             index = index - 4
                         neighbors[index] = -1
+                        # Update neighbors with new value
+                        # Needs to use negative neighbors for -1 values to mark
+                        # true
+                        self.set_required_points((x,y), neighbors[0]*-1, 
+                            neighbors[1]*-1, neighbors[2]*-1, neighbors[3]*-1,
+                            -1)
                     pos_neighbors = neighbors + 1 # if point is fixed,
                     # set all other grids set as pos_required
-                    print "From 3"
                     self.set_required_points((x,y), pos_neighbors[0],
                             pos_neighbors[1], pos_neighbors[2],
                             pos_neighbors[3], 1)

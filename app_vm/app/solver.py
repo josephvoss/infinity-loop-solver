@@ -128,4 +128,4 @@ def solve(data_object):
 
         time.sleep(0.5)
         counter += 1
-
+    print "SOLVED"
