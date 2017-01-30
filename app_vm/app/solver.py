@@ -95,16 +95,39 @@ def solve(data_object):
                         pos_required[1]) == 1 or abs(pos_required[0] -
                             pos_required[1]) == 3):
                     data_object.set_fixed_points(m, n, 1)
-                # For both
-                if len(pos_required) == 1 and len(neg_required) == 1:
-                    if abs(pos_required[0] - neg_required[0]) == 1 or \
-                        abs(pos_required[0] - neg_required[0]) == 3:
-                        data_object.set_fixed_points(m, n, 1)
                 # For neg required
                 if len(neg_required) == 2 and (abs(neg_required[0] -\
                         neg_required[1]) == 1 or abs(neg_required[0] -\
                         neg_required[1]) == 3):
                   data_object.set_fixed_points(m, n, 1)
+                # For both
+                if len(pos_required) == 1 and len(neg_required) == 1:
+                    if abs(pos_required[0] - neg_required[0]) == 1 or \
+                        abs(pos_required[0] - neg_required[0]) == 3:
+                        data_object.set_fixed_points(m, n, 1)
+
+                # For one neg 
+                if len(pos_required) == 0 and len(neg_required) == 1:
+                    pos_neighbors = neg_required
+                    index = neg_required[0] + 2
+                    if index > len(neighbors)-1:
+                        index = index - 4
+                    neighbors[index] = 1
+                    data_object.set_required_points((m, n), neighbors[0], 
+                            neighbors[1], neighbors[2], 
+                            neighbors[3], 1)
+
+                # For one pos 
+                if len(neg_required) == 0 and len(pos_required) == 1:
+                    pos_neighbors = pos_required
+                    index = pos_required[0] + 2
+                    if index > len(neighbors)-1:
+                        index = index - 4
+                    neighbors[index] = -1
+                    neighbors = neighbors * -1
+                    data_object.set_required_points((m, n), neighbors[0], 
+                            neighbors[1], neighbors[2], 
+                            neighbors[3], -1)
 
             elif shape_type == 3:
                 # For pos required
