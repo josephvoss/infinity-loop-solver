@@ -96,13 +96,15 @@ def solve(data_object):
                             pos_required[1]) == 3):
                     data_object.set_fixed_points(m, n, 1)
                 # For both
-                if len(pos_required) == 1 and len(zero_required)+len(neg_required) == 3:
-                    data_object.set_fixed_points(m, n, 1)
+                if len(pos_required) == 1 and len(neg_required) == 1:
+                    if abs(pos_required[0] - neg_required[0]) == 1 or \
+                        abs(pos_required[0] - neg_required[0]) == 3:
+                        data_object.set_fixed_points(m, n, 1)
                 # For neg required
-                if len(neg_required) == 2 and (abs(neg_required[0] -
-                        neg_required[1]) == 1 or abs(neg_required[0] -
-                            neg_required[1]) == 3):
-                    data_object.set_fixed_points(m, n, 1)
+                if len(neg_required) == 2 and (abs(neg_required[0] -\
+                        neg_required[1]) == 1 or abs(neg_required[0] -\
+                        neg_required[1]) == 3):
+                  data_object.set_fixed_points(m, n, 1)
 
             elif shape_type == 3:
                 # For pos required
@@ -126,6 +128,7 @@ def solve(data_object):
             else:
                 print "Error: Invalid shape value cannot be solved"
 
-        time.sleep(0.5)
+        #time.sleep(0.5)
+        x=raw_input('')
         counter += 1
     print "SOLVED"

@@ -183,18 +183,22 @@ class Data_storage:
                 if len(pos_fixed) == 1:
                     neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
                     # some all other grids set as pos_required
+#                    print "Neg neighbors: "+str(x)+" "+str(y)
+#                    print neg_neighbors
                     self.set_required_points((x,y), neg_neighbors[0],
                             neg_neighbors[1], neg_neighbors[2],
                             neg_neighbors[3], -1)
                 # For neg fixed
                 # Iff there are 3 non_required lines bordering the cell
                 # set the other line as req 
-                if len(neg_fixed) == 3:
+                elif len(neg_fixed) == 3:
                     pos_neighbors = neighbors + 1 # if point is fixed,
                     # set all other grids set as pos_required
                     self.set_required_points((x,y), pos_neighbors[0],
                             pos_neighbors[1], pos_neighbors[2],
                             pos_neighbors[3], 1)
+                else:
+                    print "Fixed but no updates! 1"
 
             elif self.shape_matrix[x,y] == 2:
                 # For pos fixed
@@ -207,31 +211,50 @@ class Data_storage:
                     self.set_required_points((x,y), neg_neighbors[0],
                             neg_neighbors[1], neg_neighbors[2],
                             neg_neighbors[3], -1)
-#                if len(pos_fixed) == 1 and len(neg_fixed)+len(zero_fixed) == 3:
-#                    # If 1 grid fixed, other has to be bordering it
-#                    up_pos_fixed = pos_fixed+1
-#                    down_pos_fixed = pos_fixed-1
-#                    if up_pos_fixed > len(neighbors-1):
-#                        up_pos_fixed = up_pos_fixed - 4
-#                    if down_pos_fixed > len(neighbors-1):
-#                        down_pos_fixed = down_pos_fixed - 4
-#                    if negibors[pos_fixed_up] == 0:
-#                    neg_neighbors = (neighbors - 1)*-1 # if point is fixed,
-#                    self.set_required_points((x,y), neg_neighbors[0],
-#                            neg_neighbors[1], neg_neighbors[2],
-#                            neg_neighbors[3], -1)
-#
 
                 # For neg fixed
                 # Iff there are 2 non_required lines bordering the cell and
                 # they're next to each other, set the other grids as req
-                if len(neg_fixed) == 2 and (abs(neg_fixed[0] - neg_fixed[1])
+                elif len(neg_fixed) == 2 and (abs(neg_fixed[0] - neg_fixed[1])\
                         == 1 or abs(neg_fixed[0]-neg_fixed[1]) == 3):
                     pos_neighbors = neighbors + 1 # if point is fixed,
                     # set all other grids set as pos_required
                     self.set_required_points((x,y), pos_neighbors[0],
+                        pos_neighbors[1], pos_neighbors[2],
+                        pos_neighbors[3], 1)
+
+                # For 1 neg and 1 postive
+                elif len(pos_fixed) == 1 and len(neg_fixed) == 1:
+                    if abs(pos_fixed[0] - neg_fixed[0]) == 1 or\
+                    abs(pos_fixed[0] - neg_fixed[0]) == 3:
+                        index = pos_fixed[0] - neg_fixed[0]
+                        loc_pos = pos_fixed[0]+index
+                        loc_neg = neg_fixed[0]-index
+                        if loc_neg > len(neighbors)-1:
+                            loc_neg = loc_neg - 4
+                        if loc_pos > len(neighbors)-1:
+                            loc_pos = loc_pos - 4
+                        
+                        # If x is >0 loops around in array
+                        pos_neighbors = np.copy(neighbors)
+                        neg_neighbors = np.copy(neighbors)
+                        pos_neighbors[loc_pos] = 1 
+                        neg_neighbors[loc_neg] = -1
+                        neg_neighbors = (neg_neighbors)*-1
+                        self.set_required_points((x,y), pos_neighbors[0],
                             pos_neighbors[1], pos_neighbors[2],
                             pos_neighbors[3], 1)
+                        self.set_required_points((x,y), neg_neighbors[0],
+                            neg_neighbors[1], neg_neighbors[2],
+                            neg_neighbors[3], -1)
+                    else:
+                        print "ERROR:(",str(x),",",str(y),"):",\
+                                str(self.shape_matrix[x,y])
+
+                else:
+                    print "Fixed but no updates! 2"
+                    print str(x) + ", " + str(y) + ": " + str(pos_fixed) +\
+                    "\t"+str(neg_fixed)
 
             elif self.shape_matrix[x,y] == 3:
                 # For pos fixed
@@ -256,7 +279,7 @@ class Data_storage:
                 # For neg fixed
                 # Iff there are >= 1 non_required lines bordering the cell,
                 # set the other grids as req
-                if len(neg_fixed) >= 1:
+                elif len(neg_fixed) >= 1:
                     # If only one grid was required, set opposite to required
                     if len(neg_fixed) == 1:
                         index = neg_fixed[0] + 2
@@ -275,6 +298,9 @@ class Data_storage:
                             pos_neighbors[1], pos_neighbors[2],
                             pos_neighbors[3], 1)
 
+                else:
+                    print "Fixed but no updates! 3"
+
             elif self.shape_matrix[x,y] == 4:
                 # For pos fixed
                 # Iff there is 1 required line bordering the cell, set the 
@@ -289,12 +315,15 @@ class Data_storage:
                 # For neg fixed
                 # Iff there is 1 non_required line bordering the cell, set the 
                 # other grids as req
-                if len(neg_fixed) == 1:
+                elif len(neg_fixed) == 1:
                     pos_neighbors = neighbors + 1 # if point is fixed,
                     # set all other grids set as pos_required
                     self.set_required_points((x,y), pos_neighbors[0],
                             pos_neighbors[1], pos_neighbors[2],
                             pos_neighbors[3], 1)
+
+                else:
+                    print "Fixed but no updates!"
 
             elif self.shape_matrix[x,y] == 5:
                 self.set_required_points((x,y), 1, 1, 1, 1, 1)
@@ -307,5 +336,6 @@ class Data_storage:
             else:
                 print "Error: Invalid shape value cannot be fixed"
                 pass
+
         else:
             "Error: Value is not defined"
