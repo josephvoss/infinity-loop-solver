@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 import time
 import sys
 
@@ -61,7 +62,12 @@ def solve(data_object):
     # 3. from required points generate fixed points
     # while fixed_points != 1
     counter = 0
+    stuck_counter = 0
     while np.any(data_object.fixed_points-1):
+        if stuck_counter == 3:
+            print "STUCK - Need to guess"
+            break
+
         sys.stderr.write("\x1b[2J\x1b[H")
         print "Pass # ",counter
         for i,item in enumerate(data_object.required_points):
@@ -71,6 +77,7 @@ def solve(data_object):
                 print item
         print data_object.fixed_points
         not_fixed = np.where(data_object.fixed_points != 1)
+        last_pass = np.copy(data_object.required_points)
         for i in range(len(not_fixed[0])):
             m = not_fixed[0][i]
             n = not_fixed[1][i]
@@ -145,13 +152,142 @@ def solve(data_object):
                 if len(neg_required) == 1:
                     data_object.set_fixed_points(m, n, 1)
 
-                pass
             elif shape_type == 5 or shape_type == 0:
                 print "Error: Shape type ",shape_type," should have been solved previously"
             else:
                 print "Error: Invalid shape value cannot be solved"
 
-        #time.sleep(0.5)
-        x=raw_input('')
+        current_pass = np.copy(data_object.required_points)
         counter += 1
+        if np.array_equal(current_pass,last_pass):
+            stuck_counter += 1
+
     print "SOLVED"
+
+def check(data_object):
+    """
+    Check that the puzzle was solved correctly, and display the solved puzzle
+    as an image.
+
+    Current only checks that all required points are set and work for the shape
+    type.
+
+    Input: Data_object item
+
+    """
+
+    #Checking
+    fixed_location = np.where(data_object.fixed_points == 1)
+    template_path = "/home/joseph/scratch/CV/app_vm/data/templates/inf_loop_1_1.png"
+    template = cv2.imread(template_path)
+    print template
+    (tH, tW) = template.shape[:2]
+    image_shape = data_object.fixed_points.shape
+    image_out = np.zeros((tH*image_shape[0], tW*image_shape[1],3), np.uint8)
+    image_out += 255
+    for i in range(len(fixed_location[0])):
+        m = fixed_location[0][i]
+        n = fixed_location[1][i]
+        shape_type = data_object.shape_matrix[m,n]
+        neighbors = data_object.search_neighbors(m,n)
+        pos_neighbors = np.where(neighbors == 1)[0]
+        neg_neighbors = np.where(neighbors == -1)[0]
+        if np.where(neighbors == 0)[0] != 0:
+            print "Required point not set at (",str(m),",",str(n),")"
+            break
+
+        if shape_type == 1:
+            if len(pos_neighbors) != 1 or len(neg_neighbors) != 3:
+                print "Incorrect state at (",str(m),",",str(n),")"
+            else:
+                print "Point (",str(m),",",str(n),") correct"
+        elif shape_type == 2:
+            # Lsb should be 1 for neighboring points (ie base num 3 or 1)
+            if len(pos_neighbors) != 2 or len(neg_neighbors) != 2 or\
+                abs(pos_neighbors[0] - pos_neighbors[1]) & 0b1 != 1:
+                print "Incorrect state at (",str(m),",",str(n),")"
+            else:
+                print "Point (",str(m),",",str(n),") correct"
+        elif shape_type == 3:
+            # Lsb should be 1 for neighboring points (ie base num 4 or 2)
+            if len(pos_neighbors) != 2 or len(neg_neighbors) != 2 or\
+                abs(pos_neighbors[0] - pos_neighbors[1]) & 0b1 != 0:
+                print "Incorrect state at (",str(m),",",str(n),")"
+            else:
+                print "Point (",str(m),",",str(n),") correct"
+        elif shape_type == 4:
+            if len(pos_neighbors) != 3 or len(neg_neighbors) != 1:
+                print "Incorrect state at (",str(m),",",str(n),")"
+            else:
+                print "Point (",str(m),",",str(n),") correct"
+        elif shape_type == 5:
+            if len(pos_neighbors) != 4:
+                print "Incorrect state at (",str(m),",",str(n),")"
+            else:
+                print "Point (",str(m),",",str(n),") correct"
+
+    #Displaying
+        image_type = "/home/joseph/scratch/CV/app_vm/data/templates/"
+        if shape_type == 1:
+            if neighbors[3] == 1:
+                #1_1
+                image_type += "inf_loop_1_1.png"
+            elif neighbors[0] == 1:
+                #1_2
+                image_type += "inf_loop_1_2.png"
+            elif neighbors[1] == 1:
+                #1_3
+                image_type += "inf_loop_1_3.png"
+            elif neighbors[2] == 1:
+                image_type += "inf_loop_1_4.png"
+                #1_4
+        elif shape_type == 2:
+            if neighbors[3] == 1 and neighbors[2] == 1:
+                #2_1
+                image_type += "inf_loop_2_1.png"
+            elif neighbors[0] == 1 and neighbors[3] == 1:
+                #2_2
+                image_type += "inf_loop_2_2.png"
+            elif neighbors[0] == 1 and neighbors[1] == 1:
+                #2_3
+                image_type += "inf_loop_2_3.png"
+            elif neighbors[2] == 1 and neighbors[1] == 1:
+                #2_4
+                image_type += "inf_loop_2_4.png"
+        elif shape_type == 3:
+            if neighbors[1] == 1:
+                #3_1
+                image_type += "inf_loop_3_1.png"
+            elif neighbors[0] == 1:
+                #3_2
+                image_type += "inf_loop_3_2.png"
+        elif shape_type == 4:
+            if neighbors[3] == -1:
+                #4_1
+                image_type += "inf_loop_4_1.png"
+            elif neighbors[0] == -1:
+                #4_2
+                image_type += "inf_loop_4_2.png"
+            elif neighbors[1] == -1:
+                #4_3
+                image_type += "inf_loop_4_3.png"
+            elif neighbors[2] == -1:
+                #4_4
+                image_type += "inf_loop_4_4.png"
+        elif shape_type == 5:
+            #5_1
+            image_type += "inf_loop_5_1.png"
+
+        if shape_type == 0:
+            image_type = np.zeros((tH,tW,3),np.uint8)
+            image_type += 255
+        else:
+            image_type = cv2.imread(image_type)
+        current_loc = (m * tH, n * tW)
+        image_out[current_loc[0]:current_loc[0]+tH, current_loc[1]:current_loc[1]+tW] = image_type
+
+    cv2.namedWindow("output",cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("output",400,600)
+    cv2.imshow("output",image_out)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
