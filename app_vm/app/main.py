@@ -21,7 +21,6 @@ for image_path in glob.glob("/home/joseph/Pictures/Inf_Loops/*.jpg"):
     storage = objects.Data_storage()
     image.image_find(image_path, template_path, storage)
     solver.solve(storage)
-    print("continuing")
     for i,item in enumerate(storage.required_points):
         if i % 2 == 0:
             print(" ",item)

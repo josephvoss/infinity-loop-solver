@@ -197,7 +197,7 @@ def solve(data_object):
         if np.array_equal(current_pass,last_pass):
             stuck_counter += 1
 
-        time.sleep(.5)
+#        time.sleep(.5)
     print "SOLVED"
 
 def check(data_object, image_path):
@@ -217,7 +217,6 @@ def check(data_object, image_path):
     fixed_location = np.where(data_object.fixed_points == 1)
     template_path = "/home/joseph/scratch/CV/app_vm/data/templates/inf_loop_1_1.png"
     template = cv2.imread(template_path)
-    print template
     (tH, tW) = template.shape[:2]
     image_shape = data_object.fixed_points.shape
     image_out = np.zeros((tH*image_shape[0], tW*image_shape[1],3), np.uint8)
@@ -323,11 +322,12 @@ def check(data_object, image_path):
         current_loc = (m * tH, n * tW)
         image_out[current_loc[0]:current_loc[0]+tH, current_loc[1]:current_loc[1]+tW] = image_type
 
-    cv2.namedWindow("output",cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("output",400,600)
-    cv2.imshow("output",image_out)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+#    cv2.namedWindow("output",cv2.WINDOW_NORMAL)
+#    cv2.resizeWindow("output",400,600)
+#    cv2.imshow("output",image_out)
+#    cv2.waitKey(0)
+#    cv2.destroyAllWindows()
     image_path_type = image_path.split(".")[-1]
-    output_path = image_path.split(".")[:-1] + "_Solved" + image_path_type
+    output_path = image_path.split(".")[:-1][0] + "_Solved."+str(image_path_type)
+    print output_path
     cv2.imwrite(output_path, image_out)
