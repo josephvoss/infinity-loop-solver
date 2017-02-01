@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import time
 import sys
+import copy
 
 import objects
 
@@ -63,10 +64,44 @@ def solve(data_object):
     # while fixed_points != 1
     counter = 0
     stuck_counter = 0
+    guess_counter = 0
+    guess_subcounter = 0
+    list_guesses = [] # list to hold previous guesses, with first value being
+                      # being the no-guessed data
+    list_unsolvable = [] # list to hold potential guesses
     while np.any(data_object.fixed_points-1):
         if stuck_counter == 3:
             print "STUCK - Need to guess"
-            break
+            stuck_counter = 0
+            if len(list_guesses) == 0:
+                list_unsolvable = np.where(data_object.fixed_points==0)
+            else:
+                data_object = copy.deepcopy(list_guesses[0])
+            list_guesses.append(copy.deepcopy(data_object))
+            
+            m = list_unsolvable[0][guess_counter]
+            n = list_unsolvable[1][guess_counter]
+
+            # Find all required points not set 
+            neighbors = data_object.search_neighbors(m,n)
+            zero_pos = np.where(neighbors == 0)[0]
+
+            # Guess all reqs for each fixed point
+            if guess_subcounter > len(zero_pos):
+                guess_counter += 1
+                guess_subcounter = 0
+            else:
+                index = zero_pos[guess_subcounter]
+                neighbor_fixer = np.zeros(neighbors.shape)
+                neighbor_fixer[index] = 1
+                data_object.set_required_points((m,n), neighbor_fixer[0],\
+                    neighbor_fixer[1], neighbor_fixer[2], neighbor_fixer[3], 1)
+            print "Post Guess"
+            for i,item in enumerate(data_object.required_points):
+                if i % 2 == 0:
+                    print " ",item
+                elif i % 2 == 1:
+                    print item
 
         sys.stderr.write("\x1b[2J\x1b[H")
         print "Pass # ",counter
@@ -162,9 +197,10 @@ def solve(data_object):
         if np.array_equal(current_pass,last_pass):
             stuck_counter += 1
 
+        time.sleep(.5)
     print "SOLVED"
 
-def check(data_object):
+def check(data_object, image_path):
     """
     Check that the puzzle was solved correctly, and display the solved puzzle
     as an image.
@@ -173,6 +209,7 @@ def check(data_object):
     type.
 
     Input: Data_object item
+    Input: String name of image file
 
     """
 
@@ -200,31 +237,31 @@ def check(data_object):
             if len(pos_neighbors) != 1 or len(neg_neighbors) != 3:
                 print "Incorrect state at (",str(m),",",str(n),")"
             else:
-                print "Point (",str(m),",",str(n),") correct"
+                pass
         elif shape_type == 2:
             # Lsb should be 1 for neighboring points (ie base num 3 or 1)
             if len(pos_neighbors) != 2 or len(neg_neighbors) != 2 or\
                 abs(pos_neighbors[0] - pos_neighbors[1]) & 0b1 != 1:
                 print "Incorrect state at (",str(m),",",str(n),")"
             else:
-                print "Point (",str(m),",",str(n),") correct"
+                pass
         elif shape_type == 3:
             # Lsb should be 1 for neighboring points (ie base num 4 or 2)
             if len(pos_neighbors) != 2 or len(neg_neighbors) != 2 or\
                 abs(pos_neighbors[0] - pos_neighbors[1]) & 0b1 != 0:
                 print "Incorrect state at (",str(m),",",str(n),")"
             else:
-                print "Point (",str(m),",",str(n),") correct"
+                pass
         elif shape_type == 4:
             if len(pos_neighbors) != 3 or len(neg_neighbors) != 1:
                 print "Incorrect state at (",str(m),",",str(n),")"
             else:
-                print "Point (",str(m),",",str(n),") correct"
+                pass
         elif shape_type == 5:
             if len(pos_neighbors) != 4:
                 print "Incorrect state at (",str(m),",",str(n),")"
             else:
-                print "Point (",str(m),",",str(n),") correct"
+                pass
 
     #Displaying
         image_type = "/home/joseph/scratch/CV/app_vm/data/templates/"
@@ -291,3 +328,6 @@ def check(data_object):
     cv2.imshow("output",image_out)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    image_path_type = image_path.split(".")[-1]
+    output_path = image_path.split(".")[:-1] + "_Solved" + image_path_type
+    cv2.imwrite(output_path, image_out)

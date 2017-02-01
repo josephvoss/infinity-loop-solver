@@ -9,7 +9,7 @@ import objects
 template_path = "/home/joseph/scratch/CV/app_vm/data/templates/"
 
 for image_path in glob.glob("/home/joseph/Pictures/Inf_Loops/*.jpg"):
-    image_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
+#    image_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
 #    image_path = "/home/joseph/Pictures/kfmIkJC.png"
     print('')
     print("Running Infinity Loop solver on "+image_path.split("/")[-1])
@@ -28,5 +28,4 @@ for image_path in glob.glob("/home/joseph/Pictures/Inf_Loops/*.jpg"):
         elif i%2 == 1:
             print(item)
     print(storage.fixed_points)
-    solver.check(storage)
-    break
+    solver.check(storage,image_path)
