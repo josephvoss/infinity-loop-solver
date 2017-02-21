@@ -11,6 +11,8 @@ template_path = "/home/joseph/scratch/CV/app_vm/data/templates/"
 for image_path in glob.glob("/home/joseph/Pictures/Inf_Loops/*.jpg"):
 #    image_path = "/home/joseph/scratch/CV/app_vm/data/screenshot.png"
 #    image_path = "/home/joseph/Pictures/kfmIkJC.png"
+    image_path = "/home/joseph/Pictures/Inf_Loops/Screenshot_2017-01-15-14-10-05.jpg"
+
     print('')
     print("Running Infinity Loop solver on "+image_path.split("/")[-1])
     for i in range(80):

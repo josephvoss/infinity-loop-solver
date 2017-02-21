@@ -2,6 +2,7 @@ from __future__ import print_function
 import cv2
 import numpy as np
 import glob
+import time
 
 import objects
 import image_scale
@@ -97,8 +98,8 @@ def image_find(img_path, template_path, data_object):
             data_object.shape_matrix[i][j] = int(img_type)
 
     window_name="Image Finder"
-    cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
-    cv2.resizeWindow(window_name,400,600)
-    cv2.imshow(window_name, img_color)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+#    cv2.namedWindow(window_name,cv2.WINDOW_NORMAL)
+#    cv2.resizeWindow(window_name,400,600)
+#    cv2.imshow(window_name, img_color)
+#    cv2.waitKey(0)
+#    cv2.destroyAllWindows()

@@ -5,6 +5,115 @@ import sys
 import copy
 
 import objects
+import guess_object
+
+def solve_pass(data_object,stuck_counter):
+    if stuck_counter == 3:
+        print "STUCK - Need to guess"
+        # Currently only does first order guesses
+        # Once first order guess done, call for second order guesses,
+        #   third, etc
+        # Need to refactor to make this guess call recursive
+        stuck_counter = 0
+
+        # Next order of guesses
+        # Store current guess state
+        # Iterate over guess list (right now only will show last one
+        if guess.guess_counter > len(guess.list_unsolvable[1]) - 1:
+            list_guesses.append(copy.deepcopy(guess))
+            data_object = guess.list_guesses[
+            guess = guess_object.Guess()
+        data_object = guess.guess(data_object)
+        
+    sys.stderr.write("\x1b[2J\x1b[H")
+    print "Pass # ",counter
+    for i,item in enumerate(data_object.required_points):
+        if i % 2 == 0:
+            print " ",item
+        elif i % 2 == 1:
+            print item
+    print data_object.fixed_points
+    not_fixed = np.where(data_object.fixed_points != 1)
+    last_pass = np.copy(data_object.required_points)
+    for i in range(len(not_fixed[0])):
+        m = not_fixed[0][i]
+        n = not_fixed[1][i]
+#            print "Working on cell (" + str(m) +  "," + str(n) + ")"
+        shape_type = data_object.shape_matrix[m,n]
+        neighbors, pos_required, neg_required, zero_required  = \
+                data_object.search_neighbors(m,n)
+
+        if shape_type == 1:
+            # For pos required
+            if len(pos_required) == 1:
+                data_object.set_fixed_points(m, n, 1)
+            # For neg required
+            if len(neg_required) == 3:
+                data_object.set_fixed_points(m, n, 1)
+
+        elif shape_type == 2:
+            # For pos required
+            if len(pos_required) == 2 and (abs(pos_required[0] -
+                    pos_required[1]) == 1 or abs(pos_required[0] -
+                        pos_required[1]) == 3):
+                data_object.set_fixed_points(m, n, 1)
+            # For neg required
+            if len(neg_required) == 2 and (abs(neg_required[0] -\
+                    neg_required[1]) == 1 or abs(neg_required[0] -\
+                    neg_required[1]) == 3):
+              data_object.set_fixed_points(m, n, 1)
+            # For both
+            if len(pos_required) == 1 and len(neg_required) == 1:
+                if abs(pos_required[0] - neg_required[0]) == 1 or \
+                    abs(pos_required[0] - neg_required[0]) == 3:
+                    data_object.set_fixed_points(m, n, 1)
+
+            # For one neg 
+            if len(pos_required) == 0 and len(neg_required) == 1:
+                pos_neighbors = neg_required
+                index = neg_required[0] + 2
+                if index > len(neighbors)-1:
+                    index = index - 4
+                neighbors[index] = 1
+                data_object.set_required_points((m, n), neighbors[0], 
+                        neighbors[1], neighbors[2], 
+                        neighbors[3], 1)
+
+            # For one pos 
+            if len(neg_required) == 0 and len(pos_required) == 1:
+                pos_neighbors = pos_required
+                index = pos_required[0] + 2
+                if index > len(neighbors)-1:
+                    index = index - 4
+                neighbors[index] = -1
+                neighbors = neighbors * -1
+                data_object.set_required_points((m, n), neighbors[0], 
+                        neighbors[1], neighbors[2], 
+                        neighbors[3], -1)
+
+        elif shape_type == 3:
+            # For pos required
+            if len(pos_required) >= 1:
+                data_object.set_fixed_points(m, n, 1)
+            # For neg required
+            if len(neg_required) >= 1:
+                data_object.set_fixed_points(m, n, 1)
+
+        elif shape_type == 4:
+            # For pos required
+            if len(pos_required) == 3:
+                data_object.set_fixed_points(m, n, 1)
+            # For neg required
+            if len(neg_required) == 1:
+                data_object.set_fixed_points(m, n, 1)
+
+        elif shape_type == 5 or shape_type == 0:
+            print "Error: Shape type ",shape_type," should have been solved previously"
+        else:
+            print "Error: Invalid shape value cannot be solved"
+
+        return data_object
+
 
 def solve(data_object):
     """
@@ -69,128 +178,10 @@ def solve(data_object):
     list_guesses = [] # list to hold previous guesses, with first value being
                       # being the no-guessed data
     list_unsolvable = [] # list to hold potential guesses
+
+    guess = guess_object.Guess()
+    list_guesses = []
     while np.any(data_object.fixed_points-1):
-        if stuck_counter == 3:
-            print "STUCK - Need to guess"
-            stuck_counter = 0
-            if len(list_guesses) == 0:
-                list_unsolvable = np.where(data_object.fixed_points==0)
-            else:
-                data_object = copy.deepcopy(list_guesses[0])
-            list_guesses.append(copy.deepcopy(data_object))
-            
-            m = list_unsolvable[0][guess_counter]
-            n = list_unsolvable[1][guess_counter]
-
-            # Find all required points not set 
-            neighbors = data_object.search_neighbors(m,n)
-            zero_pos = np.where(neighbors == 0)[0]
-
-            # Guess all reqs for each fixed point
-            if guess_subcounter > len(zero_pos):
-                guess_counter += 1
-                guess_subcounter = 0
-            else:
-                index = zero_pos[guess_subcounter]
-                neighbor_fixer = np.zeros(neighbors.shape)
-                neighbor_fixer[index] = 1
-                data_object.set_required_points((m,n), neighbor_fixer[0],\
-                    neighbor_fixer[1], neighbor_fixer[2], neighbor_fixer[3], 1)
-            print "Post Guess"
-            for i,item in enumerate(data_object.required_points):
-                if i % 2 == 0:
-                    print " ",item
-                elif i % 2 == 1:
-                    print item
-
-        sys.stderr.write("\x1b[2J\x1b[H")
-        print "Pass # ",counter
-        for i,item in enumerate(data_object.required_points):
-            if i % 2 == 0:
-                print " ",item
-            elif i % 2 == 1:
-                print item
-        print data_object.fixed_points
-        not_fixed = np.where(data_object.fixed_points != 1)
-        last_pass = np.copy(data_object.required_points)
-        for i in range(len(not_fixed[0])):
-            m = not_fixed[0][i]
-            n = not_fixed[1][i]
-#            print "Working on cell (" + str(m) +  "," + str(n) + ")"
-            shape_type = data_object.shape_matrix[m,n]
-            neighbors = data_object.search_neighbors(m,n)
-            pos_required = np.where(neighbors == 1)[0]
-            zero_required = np.where(neighbors == 0)[0]
-            neg_required = np.where(neighbors == -1)[0]
-
-            if shape_type == 1:
-                # For pos required
-                if len(pos_required) == 1:
-                    data_object.set_fixed_points(m, n, 1)
-                # For neg required
-                if len(neg_required) == 3:
-                    data_object.set_fixed_points(m, n, 1)
-
-            elif shape_type == 2:
-                # For pos required
-                if len(pos_required) == 2 and (abs(pos_required[0] -
-                        pos_required[1]) == 1 or abs(pos_required[0] -
-                            pos_required[1]) == 3):
-                    data_object.set_fixed_points(m, n, 1)
-                # For neg required
-                if len(neg_required) == 2 and (abs(neg_required[0] -\
-                        neg_required[1]) == 1 or abs(neg_required[0] -\
-                        neg_required[1]) == 3):
-                  data_object.set_fixed_points(m, n, 1)
-                # For both
-                if len(pos_required) == 1 and len(neg_required) == 1:
-                    if abs(pos_required[0] - neg_required[0]) == 1 or \
-                        abs(pos_required[0] - neg_required[0]) == 3:
-                        data_object.set_fixed_points(m, n, 1)
-
-                # For one neg 
-                if len(pos_required) == 0 and len(neg_required) == 1:
-                    pos_neighbors = neg_required
-                    index = neg_required[0] + 2
-                    if index > len(neighbors)-1:
-                        index = index - 4
-                    neighbors[index] = 1
-                    data_object.set_required_points((m, n), neighbors[0], 
-                            neighbors[1], neighbors[2], 
-                            neighbors[3], 1)
-
-                # For one pos 
-                if len(neg_required) == 0 and len(pos_required) == 1:
-                    pos_neighbors = pos_required
-                    index = pos_required[0] + 2
-                    if index > len(neighbors)-1:
-                        index = index - 4
-                    neighbors[index] = -1
-                    neighbors = neighbors * -1
-                    data_object.set_required_points((m, n), neighbors[0], 
-                            neighbors[1], neighbors[2], 
-                            neighbors[3], -1)
-
-            elif shape_type == 3:
-                # For pos required
-                if len(pos_required) >= 1:
-                    data_object.set_fixed_points(m, n, 1)
-                # For neg required
-                if len(neg_required) >= 1:
-                    data_object.set_fixed_points(m, n, 1)
-
-            elif shape_type == 4:
-                # For pos required
-                if len(pos_required) == 3:
-                    data_object.set_fixed_points(m, n, 1)
-                # For neg required
-                if len(neg_required) == 1:
-                    data_object.set_fixed_points(m, n, 1)
-
-            elif shape_type == 5 or shape_type == 0:
-                print "Error: Shape type ",shape_type," should have been solved previously"
-            else:
-                print "Error: Invalid shape value cannot be solved"
 
         current_pass = np.copy(data_object.required_points)
         counter += 1
@@ -225,9 +216,8 @@ def check(data_object, image_path):
         m = fixed_location[0][i]
         n = fixed_location[1][i]
         shape_type = data_object.shape_matrix[m,n]
-        neighbors = data_object.search_neighbors(m,n)
-        pos_neighbors = np.where(neighbors == 1)[0]
-        neg_neighbors = np.where(neighbors == -1)[0]
+        neighbors, pos_neighbors, neg_neighbors, zero_neighbors = \
+                data_object.search_neighbors(m,n)
         if np.where(neighbors == 0)[0] != 0:
             print "Required point not set at (",str(m),",",str(n),")"
             break

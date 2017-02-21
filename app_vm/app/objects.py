@@ -109,7 +109,11 @@ class Data_storage:
 
         Input: Integer x coordinate
         Input: Integer y coordinate
-        Output: 4x4 matrix of neighboring points in the required matrix object
+
+        Output: 1x4 matrix of neighboring points in the required matrix object
+        Output: 1x4 matrix of indexes with positive points
+        Output: 1x4 matrix of indexes with negative points
+        Output: 1x4 matrix of indexes with zero points
 
         """
         output = np.zeros(4)
@@ -118,7 +122,11 @@ class Data_storage:
         output[2] = self.required_points[x*2+2,y]
         output[3] = self.required_points[x*2+1,y]
 
-        return output
+        pos_neigh = np.where(output == 1)[0]
+        neg_neigh = np.where(output == -1)[0]
+        zero_neigh = np.where(output == 0)[0]
+
+        return output,pos_neigh,neg_neigh,zero_neigh
 
     # -1 == edge of grid
     # -9 == artifact of data storage => ignore
@@ -171,11 +179,9 @@ class Data_storage:
             #       some bordering conditions), set other lines as positive
             #       required
             # This could be replaced with a carefully designed switch
-            neighbors = self.search_neighbors(x,y)
+            neighbors, pos_fixed, neg_fixed, zero_fixed = \
+                self.search_neighbors(x,y)
 
-            pos_fixed = np.where(neighbors == 1)[0]
-            zero_fixed = np.where(neighbors == 0)[0]
-            neg_fixed = np.where(neighbors == -1)[0]
             if self.shape_matrix[x,y] == 1:
                 # For pos fixed
                 # Iff there are 3 required lines bordering the cell
